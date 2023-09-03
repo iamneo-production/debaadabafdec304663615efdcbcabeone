@@ -1,132 +1,124 @@
-// Initial game state
-let cells = ['', '', '', '', '', '', '', '', ''];
-let currentPlayer = 'X';
-let result = document.querySelector('.result');
-let btns = document.querySelectorAll('.btn');
-let conditions = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]
-];
+window.addEventListener('DOMContentLoaded', () => {
+    const tiles = Array.from(document.querySelectorAll('.tile'));
+    const playerDisplay = document.querySelector('.display-player');
+    const resetButton = document.querySelector('#reset');
+    const announcer = document.querySelector('.announcer');
 
-// Function to handle player moves
-const ticTacToe = (element, index) => {
-    // Your game logic here
+    let board = ['', '', '', '', '', '', '', '', ''];
+    let currentPlayer = 'X';
+    let isGameActive = true;
+
+    const PLAYERX_WON = 'PLAYERX_WON';
+    const PLAYERO_WON = 'PLAYERO_WON';
+    const TIE = 'TIE';
+
 
     /*
-    **Part 1: Winning Conditions (Add your code here)**
-
-    1. Implement the logic to check for winning conditions using the 'conditions' array.
-    2. Display a winning message in the 'result' element when a player wins.
-    3. Disable all buttons after a win.
+        Indexes within the board
+        [0] [1] [2]
+        [3] [4] [5]
+        [6] [7] [8]
     */
 
-    // Your code to update the game state and check for a win
-    // ...
+    const winningConditions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ];
 
-    // Your code to display the current player's turn
-    // ...
+    function handleResultValidation() {
+        let roundWon = false;
+        for (let i = 0; i <= 7; i++) {
+            const winCondition = winningConditions[i];
+            const a = board[winCondition[0]];
+            const b = board[winCondition[1]];
+            const c = board[winCondition[2]];
+            if (a === '' || b === '' || c === '') {
+                continue;
+            }
+            if (a === b && b === c) {
+                roundWon = true;
+                break;
+            }
+        }
 
-    // Your code to handle button and cell interactions
-    // ...
-};
+    if (roundWon) {
+            announce(currentPlayer === 'X' ? PLAYERX_WON : PLAYERO_WON);
+            isGameActive = false;
+            return;
+        }
 
-    /*
-    **Part 2: Reset Function (Add your code here)**
+    if (!board.includes(''))
+        announce(TIE);
+    }
 
-    1. Implement a new function that resets the game to its initial state.
-    2. Ensure the 'cells', 'btns', and 'currentPlayer' variables are reset.
-    3. Update the 'result' element to indicate the current player's turn.
-    4. Re-enable all buttons for a new game.
-    */
+    const announce = (type) => {
+        switch(type){
+            case PLAYERO_WON:
+                announcer.innerHTML = 'Player <span class="playerO">O</span> Won';
+                break;
+            case PLAYERX_WON:
+                announcer.innerHTML = 'Player <span class="playerX">X</span> Won';
+                break;
+            case TIE:
+                announcer.innerText = 'Tie';
+        }
+        announcer.classList.remove('hide');
+    };
 
-// Function to reset the game
-const resetGame = () => {
-    // Your code to reset the game state
-    // ...
+    const isValidAction = (tile) => {
+        if (tile.innerText === 'X' || tile.innerText === 'O'){
+            return false;
+        }
 
-    // Your code to update the 'result' element
-    // ...
+        return true;
+    };
 
-    // Your code to re-enable buttons
-    // ...
-};
+    const updateBoard =  (index) => {
+        board[index] = currentPlayer;
+    }
 
-btns.forEach((btn, i) => {
-    btn.addEventListener('click', () => ticTacToe(btn, i));
+    const changePlayer = () => {
+        playerDisplay.classList.remove(`player${currentPlayer}`);
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        playerDisplay.innerText = currentPlayer;
+        playerDisplay.classList.add(`player${currentPlayer}`);
+    }
+
+    const userAction = (tile, index) => {
+        if(isValidAction(tile) && isGameActive) {
+            tile.innerText = currentPlayer;
+            tile.classList.add(`player${currentPlayer}`);
+            updateBoard(index);
+            handleResultValidation();
+            changePlayer();
+        }
+    }
+    
+    const resetBoard = () => {
+        board = ['', '', '', '', '', '', '', '', ''];
+        isGameActive = true;
+        announcer.classList.add('hide');
+
+        if (currentPlayer === 'O') {
+            changePlayer();
+        }
+
+        tiles.forEach(tile => {
+            tile.innerText = '';
+            tile.classList.remove('playerX');
+            tile.classList.remove('playerO');
+        });
+    }
+
+    tiles.forEach( (tile, index) => {
+        tile.addEventListener('click', () => userAction(tile, index));
+    });
+
+    resetButton.addEventListener('click', resetBoard);
 });
-
-document.querySelector('#reset').addEventListener('click', resetGame);
-<!DOCTYPE html>
-<html>
-	
-<head>
-	<meta name="viewport" content=
-		"width=device-width, initial-scale=1.0">
-	<!-- CSS file Included -->
-	<link rel="stylesheet" type="text/css" href="tic.css">
-	<!-- JavaScript file included -->
-	<script src="tic.js"></script>
-</head>
-
-<body>
-	<div id="main">
-		<h1>TIC TAC TOE</h1>
-		<p id="ins">
-			Game starts by just Tap on
-			box<br><br>First Player starts as
-			<b>Player X </b>And Second Player as
-			<b>Player 0</b>
-		</p>
-		<br><br>
-		<div class = "ui">
-			<div class="row">
-				<input type="text" id= "b1"
-					class="cell" onclick="myfunc_3(); myfunc();"
-					readonly>
-				<input type="text" id= "b2"
-					class="cell" onclick="myfunc_4(); myfunc();"
-					readonly>
-				<input type="text" id= "b3" class="cell"
-					onclick="myfunc_5(); myfunc();"
-					readonly>
-			</div>
-			<div class="row">
-				<input type="text" id= "b4"
-					class="cell" onclick="myfunc_6(); myfunc();"
-					readonly>
-				<input type="text" id= "b5"
-					class="cell" onclick="myfunc_7(); myfunc();"
-					readonly>
-				<input type="text" id= "b6"
-					class="cell" onclick="myfunc_8(); myfunc();"
-					readonly>
-			</div>
-			<div class="row">
-				<input type="text" id= "b7"
-					class="cell" onclick="myfunc_9(); myfunc();"
-					readonly>
-				<input type="text" id= "b8"
-					class="cell" onclick="myfunc_10();myfunc();"
-					readonly>
-				<input type="text" id= "b9"
-					class="cell" onclick="myfunc_11();myfunc();"
-					readonly>
-			</div>
-		</div>
-		<br><br><br>
-		
-		<button id="but" onclick="myfunc_2()">
-			RESET
-		</button>
-		<br><br>
-		<p id="print"></p>
-	</div>
-</body>
-
-</html>
